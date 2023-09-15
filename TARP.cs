@@ -36,7 +36,8 @@ namespace TARP
             presence = default;
             
             curScene = SceneManager.GetActiveScene();
-            SetStatus("Browsing the Main Menu", "mainmenuimage");
+            UpdatePresence("Browsing the Main Menu", "mainmenuimage");
+            TARPDebug.Log("Rich Presence was switched to 'Browsing the Main Menu'");
         }
 
         private static void ErrorCallback(int errorCode, string message)
@@ -82,29 +83,29 @@ namespace TARP
             {
                 case "MainMenu":
                     prevSceneName = curSceneName;
-                    SetStatus("Browsing the Main Menu", "mainmenuimage");
+                    UpdatePresence("Browsing the Main Menu", "mainmenuimage");
                     TARPDebug.Log("Rich Presence was switched to 'Browsing the Main Menu'");
                     break;
                 case "WilhelmTest":
                     prevSceneName = curSceneName;
-                    SetStatus("In the Shooting Range", "shootingrangeimage");
+                    UpdatePresence("In the Shooting Range", "shootingrangeimage");
                     TARPDebug.Log("Rich Presence was switched to 'In the Shooting Range'");
                     break;
                 case "MainWorld_Base":
                     System.Random rndMatchImg = new System.Random();
                     prevSceneName = curSceneName;
-                    SetStatus("In a match", "matchimage" + rndMatchImg.Next(1, 5));
+                    UpdatePresence("In a match", "matchimage" + rndMatchImg.Next(1, 5));
                     TARPDebug.Log("Rich Presence was switched to 'In a match'");
                     break;
                 default:
                     prevSceneName = curSceneName;
-                    SetStatus("Browsing the Main Menu", "mainmenuimage");
+                    UpdatePresence("Browsing the Main Menu", "mainmenuimage");
                     TARPDebug.Log("No compatible Scene was detected, setting scene to Main Menu as a failsafe");
                     break;
             }
         }
 
-        void SetStatus(string detail, string key)
+        void UpdatePresence(string detail, string key)
         {
             long timestamp = new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds();
             presence.details = detail;
