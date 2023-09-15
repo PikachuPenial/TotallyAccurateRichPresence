@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using BepInEx;
+using HarmonyLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TARP.Utilities;
@@ -24,6 +25,9 @@ namespace TARP
 
         private void Awake()
         {
+            var harmony = new Harmony("com.penial.totallyaccuraterichpresence");
+            harmony.PatchAll();
+
             presenceCheckInterval = 5;
             presenceUpdateCooldown = presenceCheckInterval;
 
