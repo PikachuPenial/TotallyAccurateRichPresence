@@ -8,20 +8,25 @@ using TARP.Utilities;
 
 namespace TARP
 {
-    [BepInPlugin("com.penial.totallyaccuraterichpresence", "Totally Accurate Rich Presence", "1.0.0")]
+    [BepInPlugin("com.penial.totallyaccuraterichpresence", "Totally Accurate Rich Presence", "1.1.0")]
     [BepInProcess("TotallyAccurateBattlegrounds.exe")]
-
     public class TARP : BaseUnityPlugin
     {
-        public const string version = "1.0";
+        public const string version = "1.1";
         internal static DiscordRPC.RichPresence presence;
         private float presenceCheckInterval;
         private float presenceUpdateCooldown;
-        private Scene curScene;
-        private string curSceneName;
-        private string prevSceneName;
+        private long previousTimestamp;
 
-        public const bool allowDebug = true;
+        private string sceneActive;
+        private string sceneOnPresence;
+
+        public int level;
+        public int xp;
+        public int kills;
+        public int alive;
+
+        public const bool allowLogging = true;
 
         private void Awake()
         {
@@ -38,10 +43,7 @@ namespace TARP
 
             DiscordRPC.Initialize("1152021847400005722", ref eventHandlers, true, "823130");
             presence = default;
-            
-            curScene = SceneManager.GetActiveScene();
-            UpdatePresence("Browsing the Main Menu", "mainmenuimage");
-            TARPDebug.Log("Rich Presence was switched to 'Browsing the Main Menu'");
+            //DiscordRPC.UpdatePresence(ref presence);
         }
 
         private static void ErrorCallback(int errorCode, string message)
@@ -59,7 +61,6 @@ namespace TARP
             TARPDebug.Log("Discord Rich Presence has been successfully initialized");
         }
 
-        
         void Update()
         {
             if (presenceUpdateCooldown > 0)
@@ -69,53 +70,46 @@ namespace TARP
             else
             {
                 presenceUpdateCooldown = presenceCheckInterval;
-                CheckStatus();
+                UpdatePresence();
             }
         }
 
-        void CheckStatus()
+        void UpdatePresence()
         {
-            Scene curScene = SceneManager.GetActiveScene();
-            curSceneName = curScene.name;
+            Scene scene = SceneManager.GetActiveScene();
+            sceneActive = scene.name;
 
-            if (curSceneName == prevSceneName)
+            switch (sceneActive)
             {
-                return;
+                case "MainMenu": // Main Menu
+                    level = LevelProgressionUI.PLAYER_LEVEL;
+                    xp = LevelProgressionUI.PLAYER_XP;
+                    presence.details = "Browsing the Main Menu";
+                    presence.state = "LVL." + level + " (" + xp + " XP)";
+                    presence.largeImageKey = "mainmenuimage";
+                    break;
+                case "MainWorld_Base": // In Game
+                    presence.details = "In a match";
+                    presence.state = "99 kills | 99 alive";
+                    presence.largeImageKey = "matchimage1";
+                    break;
+                case "WilhelmTest": // Shooting Range
+                    presence.details = "In the Shooting Range";
+                    presence.state = "99 dummies killed";
+                    presence.largeImageKey = "shootingrangeimage";
+                    break;
+                default: // Failsafe if a unsupported scene is loaded
+                    presence.details = "Browsing the Main Menu";
+                    presence.state = "LVL." + level + " (" + xp + " XP)";
+                    presence.largeImageKey = "mainmenuimage";
+                    break;
             }
 
-            switch(curScene.name)
-            {
-                case "MainMenu":
-                    prevSceneName = curSceneName;
-                    UpdatePresence("Browsing the Main Menu", "mainmenuimage");
-                    TARPDebug.Log("Rich Presence was switched to 'Browsing the Main Menu'");
-                    break;
-                case "WilhelmTest":
-                    prevSceneName = curSceneName;
-                    UpdatePresence("In the Shooting Range", "shootingrangeimage");
-                    TARPDebug.Log("Rich Presence was switched to 'In the Shooting Range'");
-                    break;
-                case "MainWorld_Base":
-                    System.Random rndMatchImg = new System.Random();
-                    prevSceneName = curSceneName;
-                    UpdatePresence("In a match", "matchimage" + rndMatchImg.Next(1, 5));
-                    TARPDebug.Log("Rich Presence was switched to 'In a match'");
-                    break;
-                default:
-                    prevSceneName = curSceneName;
-                    UpdatePresence("Browsing the Main Menu", "mainmenuimage");
-                    TARPDebug.Log("No compatible Scene was detected, setting scene to Main Menu as a failsafe");
-                    break;
-            }
-        }
-
-        void UpdatePresence(string detail, string key)
-        {
             long timestamp = new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds();
-            presence.details = detail;
+            sceneOnPresence = sceneActive;
+
+            presence.largeImageText = "TARP, created by Penial";
             presence.startTimestamp = timestamp;
-            presence.largeImageKey = key;
-            presence.largeImageText = "TARP " + version + ", created by Penial";
             DiscordRPC.UpdatePresence(ref presence);
         }
     }

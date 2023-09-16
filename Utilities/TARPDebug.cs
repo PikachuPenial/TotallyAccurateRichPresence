@@ -8,7 +8,7 @@ namespace TARP.Utilities
     {
         public static void Log(object message)
         {
-            if (TARP.allowDebug)
+            if (TARP.allowLogging)
             {
                 UnityEngine.Debug.Log("TARP: " + message);
             }

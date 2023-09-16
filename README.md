@@ -18,6 +18,17 @@
 ## Patch Notes
 
 <details>
+<summary>Version 1.1</summary>
+<br>
+
+Released on <i>9/16/2023</i>
+
+Added Player Level and Player XP to the Main Menu presence
+
+---
+</details>
+
+<details>
 <summary>Version 1.0</summary>
 <br>
 
