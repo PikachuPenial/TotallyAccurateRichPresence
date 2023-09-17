@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections;
 using BepInEx;
+using BepInEx.Logging;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using TARP.Utilities;
 
 namespace TARP
 {
@@ -12,10 +11,11 @@ namespace TARP
     [BepInProcess("TotallyAccurateBattlegrounds.exe")]
     public class TARP : BaseUnityPlugin
     {
-        public const string version = "1.1";
         internal static DiscordRPC.RichPresence presence;
+        private Scene scene;
         private float presenceCheckInterval;
         private float presenceUpdateCooldown;
+        private long timestamp;
         private long previousTimestamp;
 
         private string sceneActive;
@@ -23,10 +23,8 @@ namespace TARP
 
         public int level;
         public int xp;
-        public int kills;
-        public int alive;
-
-        public const bool allowLogging = true;
+        //public int kills;
+        //public int alive;
 
         private void Awake()
         {
@@ -43,29 +41,28 @@ namespace TARP
 
             DiscordRPC.Initialize("1152021847400005722", ref eventHandlers, true, "823130");
             presence = default;
-            //DiscordRPC.UpdatePresence(ref presence);
         }
 
-        private static void ErrorCallback(int errorCode, string message)
+        private void ErrorCallback(int errorCode, string message)
         {
-            TARPDebug.Log($"RPErrorCallback: {errorCode}: {message}");
+            Logger.LogInfo($"RPErrorCallback: {errorCode}: {message}");
         }
 
-        private static void DisconnectedCallback(int errorCode, string message)
+        private void DisconnectedCallback(int errorCode, string message)
         {
-            TARPDebug.Log($"RPDisconnectedCallback: {errorCode}: {message}");
+            Logger.LogInfo($"RPDisconnectedCallback: {errorCode}: {message}");
         }
 
-        private static void ReadyCallback()
+        private void ReadyCallback()
         {
-            TARPDebug.Log("Discord Rich Presence has been successfully initialized");
+            Logger.LogInfo("Discord Rich Presence has been successfully initialized");
         }
 
         void Update()
         {
             if (presenceUpdateCooldown > 0)
             {
-                presenceUpdateCooldown -= Time.deltaTime;
+                presenceUpdateCooldown -= Time.unscaledDeltaTime;
             }
             else
             {
@@ -76,41 +73,45 @@ namespace TARP
 
         void UpdatePresence()
         {
-            Scene scene = SceneManager.GetActiveScene();
+            scene = SceneManager.GetActiveScene();
             sceneActive = scene.name;
 
             switch (sceneActive)
             {
                 case "MainMenu": // Main Menu
                     level = LevelProgressionUI.PLAYER_LEVEL;
-                    xp = LevelProgressionUI.PLAYER_XP;
+                    xp = Mathf.RoundToInt((float)LevelProgressionUI.PLAYER_XP / (float)LevelProgressionUI.XPNeededAtLevel(level + 1)* 100);
                     presence.details = "Browsing the Main Menu";
-                    presence.state = "LVL." + level + " (" + xp + " XP)";
+                    presence.state = "";
                     presence.largeImageKey = "mainmenuimage";
                     break;
                 case "MainWorld_Base": // In Game
                     presence.details = "In a match";
-                    presence.state = "99 kills | 99 alive";
+                    presence.state = "";
                     presence.largeImageKey = "matchimage1";
                     break;
                 case "WilhelmTest": // Shooting Range
                     presence.details = "In the Shooting Range";
-                    presence.state = "99 dummies killed";
+                    presence.state = "";
                     presence.largeImageKey = "shootingrangeimage";
                     break;
                 default: // Failsafe if a unsupported scene is loaded
                     presence.details = "Browsing the Main Menu";
-                    presence.state = "LVL." + level + " (" + xp + " XP)";
+                    presence.state = "";
                     presence.largeImageKey = "mainmenuimage";
                     break;
             }
+            presence.largeImageText = "LVL." + level + " (" + xp + "%)";
 
-            long timestamp = new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds();
-            sceneOnPresence = sceneActive;
+            if (sceneOnPresence != sceneActive)
+            {
+                timestamp = new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds();
+                presence.startTimestamp = timestamp;
+            }
 
-            presence.largeImageText = "TARP, created by Penial";
-            presence.startTimestamp = timestamp;
             DiscordRPC.UpdatePresence(ref presence);
+            sceneOnPresence = sceneActive;
+            previousTimestamp = timestamp;
         }
     }
 }

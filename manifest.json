@@ -1,7 +1,8 @@
-// In the unlikely future that TABG ever receives official support through Thunderstore, this file is required to list mods onto their database.
+// In the unlikely future that TABG ever receives official support through Thunderstore, this file is required to list mods onto their database. (9/15)
+// This events of the line above are looking more likely, let us have hope. (9/17)
 {
   "name": "Totally Accurate Rich Presence",
-  "version_number": "1.0.0",
-  "website_url": "https://github.com/PikachuPenial",
+  "version_number": "1.1.0",
+  "website_url": "https://github.com/PikachuPenial/TotallyAccurateRichPresence",
   "description": "Adds Discord Rich Presence to Totally Accurate Battlegrounds, created by Penial."
 }

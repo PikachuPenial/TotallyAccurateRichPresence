@@ -21,9 +21,15 @@
 <summary>Version 1.1</summary>
 <br>
 
-Released on <i>9/16/2023</i>
+Released on <i>9/17/2023</i>
 
-Added Player Level and Player XP to the Main Menu presence
+Hovering over a presence image now shows the players LVL and their progress as a percentage to the next LVL
+
+Refactored the process for presence updates
+
+Fixed a case of presence desync when returning to the Main Menu
+
+Removed custom logging system and switch logger to BepInEx (previously Unity)
 
 ---
 </details>
