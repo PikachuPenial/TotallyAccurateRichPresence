@@ -3,8 +3,7 @@
 ![presence2](https://github.com/PikachuPenial/TotallyAccurateRichPresence/assets/62630906/94b321f5-84ad-4248-9299-69438901105a)
 ![presence3](https://github.com/PikachuPenial/TotallyAccurateRichPresence/assets/62630906/72674043-d1e7-43bb-b182-9eb2caf64292)
 
-## DISCLAIMERS
-- For the forseeable future, this mod will only function if installed on the ***BETA BRANCH*** of TABG. This branch is not currently available to the public.
+## DISCLAIMER
 - Use this mod at your own risk, bugs and/or crashes can occur.
 
 ## Installation
